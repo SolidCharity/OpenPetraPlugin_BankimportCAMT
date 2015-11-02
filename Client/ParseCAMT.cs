@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 using System.Threading;
 using System.Text;
@@ -67,7 +68,9 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
         public void ProcessFile(string filename)
         {
             Console.WriteLine("Read file " + filename);
+            statements = new List <TStatement>();
 
+            CultureInfo backupCulture = Thread.CurrentThread.CurrentCulture;
             try
             {
                 XmlDocument doc = new XmlDocument();
@@ -84,6 +87,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                 }
 
                 XmlNodeList stmts = nodeDocument.SelectNodes("camt:BkToCstmrStmt/camt:Stmt", nsmgr);
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
                 foreach (XmlNode nodeStatement in stmts)
                 {
@@ -178,12 +182,18 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
                         TLogging.LogAtLevel(2, "count : " + stmt.transactions.Count.ToString());
                     }
+
+                    statements.Add(stmt);
                 }
             }
             catch (Exception e)
             {
                 throw new Exception(
                     "problem with file " + filename + "; " + e.Message + Environment.NewLine + e.StackTrace);
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = backupCulture;
             }
         }
     }

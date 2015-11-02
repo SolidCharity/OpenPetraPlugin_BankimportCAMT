@@ -61,13 +61,13 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
             AStatementKey = -1;
 
             // each time the button btnImportNewStatement is clicked, do a split and move action
-            SplitFilesAndMove();
+            //SplitFilesAndMove();
             ArchiveFilesLastMonth(ALedgerNumber);
 
 
             OpenFileDialog DialogOpen = new OpenFileDialog();
 
-            DialogOpen.Filter = Catalog.GetString("bank statement MT940 (*.sta)|*.sta");
+            DialogOpen.Filter = Catalog.GetString("bank statement CAMT (*.xml)|*.xml");
 
             if (TAppSettingsManager.HasValue("BankimportPath" + ALedgerNumber.ToString()))
             {
@@ -174,7 +174,112 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
             string ABankAccountCode,
             ref BankImportTDS AMainDS)
         {
-            // TODO
+            TCAMTParser parser = new TCAMTParser();
+
+            parser.ProcessFile(AFilename);
+
+            Int32 statementCounter = AMainDS.AEpStatement.Rows.Count;
+
+            foreach (TStatement stmt in parser.statements)
+            {
+                Int32 transactionCounter = 0;
+
+                foreach (TTransaction tr in stmt.transactions)
+                {
+                    BankImportTDSAEpTransactionRow row = AMainDS.AEpTransaction.NewRowTyped();
+
+                    row.StatementKey = (statementCounter + 1) * -1;
+                    row.Order = transactionCounter;
+                    row.DetailKey = -1;
+                    row.AccountName = tr.partnerName;
+
+                    if ((tr.accountCode != null) && Regex.IsMatch(tr.accountCode, "^[A-Z]"))
+                    {
+                        // this is an iban
+                        row.Iban = tr.accountCode;
+                        row.Bic = tr.bankCode;
+                        row.BranchCode = tr.accountCode.Substring(4, 8).TrimStart(new char[] { '0' });
+                        row.BankAccountNumber = tr.accountCode.Substring(12).TrimStart(new char[] { '0' });
+                    }
+                    else if (tr.accountCode != null)
+                    {
+                        row.BankAccountNumber = tr.accountCode.TrimStart(new char[] { '0' });
+                        row.BranchCode = tr.bankCode == null ? string.Empty : tr.bankCode.TrimStart(new char[] { '0' });
+                        row.Iban = string.Empty;
+                        row.Bic = string.Empty;
+                    }
+
+                    row.DateEffective = tr.valueDate;
+                    row.TransactionAmount = tr.amount;
+                    row.Description = tr.description;
+                    row.TransactionTypeCode = tr.typecode;
+
+                    if ((row.TransactionTypeCode == "BOOK")
+                        )
+                    {
+                        row.TransactionTypeCode += MFinanceConstants.BANK_STMT_POTENTIAL_GIFT;
+                    }
+
+                    AMainDS.AEpTransaction.Rows.Add(row);
+
+                    transactionCounter++;
+                }
+
+                AEpStatementRow epstmt = AMainDS.AEpStatement.NewRowTyped();
+                epstmt.StatementKey = (statementCounter + 1) * -1;
+                epstmt.Date = stmt.date;
+                epstmt.CurrencyCode = stmt.currency;
+                epstmt.Filename = AFilename;
+                epstmt.BankAccountCode = ABankAccountCode;
+                epstmt.IdFromBank = stmt.id;
+
+                if (AFilename.Length > AEpStatementTable.GetFilenameLength())
+                {
+                    epstmt.Filename =
+                        TAppSettingsManager.GetValue("BankNameFor" + stmt.bankCode + "/" + stmt.accountCode,
+                            stmt.bankCode + "/" + stmt.accountCode, true);
+                }
+
+                epstmt.StartBalance = stmt.startBalance;
+                epstmt.EndBalance = stmt.endBalance;
+
+                AMainDS.AEpStatement.Rows.Add(epstmt);
+
+                // sort by amount, and by accountname; this is the order of the paper statements and attachments
+                AMainDS.AEpTransaction.DefaultView.Sort = BankImportTDSAEpTransactionTable.GetTransactionAmountDBName() + "," +
+                                                          BankImportTDSAEpTransactionTable.GetOrderDBName();
+                AMainDS.AEpTransaction.DefaultView.RowFilter = BankImportTDSAEpTransactionTable.GetStatementKeyDBName() + "=" +
+                                                               epstmt.StatementKey.ToString();
+
+                // starting with the most negative amount, which should be the last in the order on the statement
+                Int32 countOrderOnStatement = AMainDS.AEpTransaction.DefaultView.Count;
+                bool countingNegative = true;
+
+                foreach (DataRowView rv in AMainDS.AEpTransaction.DefaultView)
+                {
+                    BankImportTDSAEpTransactionRow row = (BankImportTDSAEpTransactionRow)rv.Row;
+
+                    if ((row.TransactionAmount > 0) && countingNegative)
+                    {
+                        countingNegative = false;
+                        countOrderOnStatement = 1;
+                    }
+
+                    if (countingNegative)
+                    {
+                        row.NumberOnPaperStatement = countOrderOnStatement;
+                        countOrderOnStatement--;
+                    }
+                    else
+                    {
+                        row.NumberOnPaperStatement = countOrderOnStatement;
+                        countOrderOnStatement++;
+                    }
+                }
+
+                statementCounter++;
+            }
+
             return true;
         }
 
@@ -247,8 +352,8 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
                 for (int counter = 1; counter <= 31; counter++)
                 {
-                    string filename = "EKK_" + LastMonth.ToString("yyMM") + counter.ToString("00") + ".sta";
-                    string filename2 = "SPK_" + LastMonth.ToString("yyMM") + counter.ToString("00") + ".sta";
+                    string filename = "EKK_" + LastMonth.ToString("yyMM") + counter.ToString("00") + ".xml";
+                    string filename2 = "SPK_" + LastMonth.ToString("yyMM") + counter.ToString("00") + ".xml";
 
                     if (File.Exists(MyPath + filename))
                     {
