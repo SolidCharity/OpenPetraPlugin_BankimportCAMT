@@ -61,7 +61,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
             AStatementKey = -1;
 
             // each time the button btnImportNewStatement is clicked, do a split and move action
-            //SplitFilesAndMove();
+            SplitFilesAndMove();
             ArchiveFilesLastMonth(ALedgerNumber);
 
 
