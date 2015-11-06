@@ -214,7 +214,17 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                     row.Description = tr.description;
                     row.TransactionTypeCode = tr.typecode;
 
-                    if ((row.TransactionTypeCode == "BOOK")
+                    // see the codes: https://www.wgzbank.de/export/sites/wgzbank/de/wgzbank/downloads/produkte_leistungen/firmenkunden/zv_aktuelles/Uebersicht-GVC-und-Buchungstexte-WGZ-BANK_V062015.pdf
+                    if ((row.TransactionTypeCode == "052")
+                        || (row.TransactionTypeCode == "051")
+                        || (row.TransactionTypeCode == "053")
+                        || (row.TransactionTypeCode == "067")
+                        || (row.TransactionTypeCode == "068")
+                        || (row.TransactionTypeCode == "069")
+                        || (row.TransactionTypeCode == "119") /* Einzelbuchung Spende (Purpose: CHAR) */
+                        || (row.TransactionTypeCode == "152") /* SEPA Credit Transfer Einzelbuchung Dauerauftrag */
+                        || (row.TransactionTypeCode == "166") /* SEPA Credit Transfer */
+                        || (row.TransactionTypeCode == "169") /* SEPA Credit Transfer Donation */
                         )
                     {
                         row.TransactionTypeCode += MFinanceConstants.BANK_STMT_POTENTIAL_GIFT;

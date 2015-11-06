@@ -177,7 +177,11 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                             tr.description += " " + CrdtName.InnerText;
                         }
 
-                        tr.typecode = nodeEntry.SelectSingleNode("camt:Sts", nsmgr).InnerText;
+                        // eg NSTO+152+00900. look for SEPA Geschäftsvorfallcodes
+                        // see the codes: https://www.wgzbank.de/export/sites/wgzbank/de/wgzbank/downloads/produkte_leistungen/firmenkunden/zv_aktuelles/Uebersicht-GVC-und-Buchungstexte-WGZ-BANK_V062015.pdf
+                        string[] GVCCode = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:BkTxCd/camt:Prtry/camt:Cd", nsmgr).InnerText.Split(new char[] {'+'});
+                        tr.typecode = GVCCode[1];
+
                         stmt.transactions.Add(tr);
 
                         TLogging.LogAtLevel(2, "count : " + stmt.transactions.Count.ToString());
