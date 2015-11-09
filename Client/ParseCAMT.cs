@@ -170,11 +170,18 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         }
 
                         XmlNode CrdtName = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Cdtr/camt:Nm", nsmgr);
+                        XmlNode DbtrName = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Dbtr/camt:Nm", nsmgr);
 
                         if ((CrdtName != null) && (CrdtName.InnerText != ownName))
                         {
-                            // sometimes donors write the project or recipient in the field where the organisation is supposed to be
-                            tr.description += " " + CrdtName.InnerText;
+                            if ((DbtrName != null) && (DbtrName.InnerText == ownName))
+                            {
+                                // we are the debitor
+                            } else {
+                                // sometimes donors write the project or recipient in the field where the organisation is supposed to be
+                                TLogging.Log("CrdtName is not like expected: " + tr.description + " --- " + CrdtName.InnerText);
+                                tr.description += " " + CrdtName.InnerText;
+                            }
                         }
 
                         // eg NSTO+152+00900. look for SEPA Geschäftsvorfallcodes
