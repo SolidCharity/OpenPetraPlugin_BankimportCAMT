@@ -94,7 +94,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                     TStatement stmt = new TStatement();
                     currentStatement = stmt;
 
-                    stmt.id = nodeStatement.SelectSingleNode("camt:Id", nsmgr).InnerText;
+                    stmt.id = nodeStatement.SelectSingleNode("camt:ElctrncSeqNb", nsmgr).InnerText;
                     stmt.accountCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Id/camt:IBAN", nsmgr).InnerText;
                     stmt.bankCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Svcr/camt:FinInstnId/camt:BIC", nsmgr).InnerText;
                     stmt.currency = nodeStatement.SelectSingleNode("camt:Acct/camt:Ccy", nsmgr).InnerText;
