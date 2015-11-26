@@ -367,6 +367,11 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                                              bankAccountData[bankCounter * 3 + 1] + "_" +
                                              stmtDate.ToString("yyMMdd") + ".xml";
 
+                        if (File.Exists(newfilename))
+                        {
+                            File.Delete(newfilename);
+                        }
+
                         File.Move(RawFile, newfilename);
                     }
                 }
