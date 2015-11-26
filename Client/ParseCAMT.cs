@@ -177,7 +177,9 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                             if ((DbtrName != null) && (DbtrName.InnerText == ownName))
                             {
                                 // we are the debitor
-                            } else {
+                            }
+                            else
+                            {
                                 // sometimes donors write the project or recipient in the field where the organisation is supposed to be
                                 TLogging.Log("CrdtName is not like expected: " + tr.description + " --- " + CrdtName.InnerText);
                                 tr.description += " " + CrdtName.InnerText;
@@ -186,7 +188,9 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
                         // eg NSTO+152+00900. look for SEPA Geschäftsvorfallcodes
                         // see the codes: https://www.wgzbank.de/export/sites/wgzbank/de/wgzbank/downloads/produkte_leistungen/firmenkunden/zv_aktuelles/Uebersicht-GVC-und-Buchungstexte-WGZ-BANK_V062015.pdf
-                        string[] GVCCode = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:BkTxCd/camt:Prtry/camt:Cd", nsmgr).InnerText.Split(new char[] {'+'});
+                        string[] GVCCode =
+                            nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:BkTxCd/camt:Prtry/camt:Cd", nsmgr).InnerText.Split(
+                                new char[] { '+' });
                         tr.typecode = GVCCode[1];
 
                         stmt.transactions.Add(tr);

@@ -347,16 +347,17 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
             {
                 // 2015-11-02_C53_DE12500105170648489890_EUR_X000XX.xml
                 string RawFileName = Path.GetFileName(RawFile);
-                if (!RawFileName.Contains("_C53_") || RawFileName.Length < "2015-11-02_C53_DE12500105170648489890_EUR".Length)
+
+                if (!RawFileName.Contains("_C53_") || (RawFileName.Length < "2015-11-02_C53_DE12500105170648489890_EUR".Length))
                 {
                     continue;
                 }
 
                 TLogging.Log("BankImport CAMT plugin: moving file " + RawFile);
                 string IBAN = RawFileName.Substring("2015-11-02_C53_".Length, "DE12500105170648489890".Length);
-                string[] DateString = RawFileName.Substring(0, "2015-11-02".Length).Split(new char [] {'-'});
+                string[] DateString = RawFileName.Substring(0, "2015-11-02".Length).Split(new char[] { '-' });
                 DateTime stmtDate = new DateTime(Convert.ToInt32(DateString[0]), Convert.ToInt32(DateString[1]), Convert.ToInt32(DateString[2]));
-                
+
                 for (Int32 bankCounter = 0; bankCounter < bankAccountData.Length / 3; bankCounter++)
                 {
                     if (IBAN.EndsWith(bankAccountData[bankCounter * 3 + 0]))
@@ -365,6 +366,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                                              bankAccountData[bankCounter * 3 + 2] + Path.DirectorySeparatorChar +
                                              bankAccountData[bankCounter * 3 + 1] + "_" +
                                              stmtDate.ToString("yyMMdd") + ".xml";
+
                         File.Move(RawFile, newfilename);
                     }
                 }
@@ -377,6 +379,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
         {
             string MyPath = TAppSettingsManager.GetValue("BankimportPath" + ALedgerNumber.ToString() + Path.DirectorySeparatorChar);
             string MyPath2 = MyPath + Path.DirectorySeparatorChar + "imported" + Path.DirectorySeparatorChar;
+
             string[] bankAccountData = TAppSettingsManager.GetValue("BankAccounts").Split(new char[] { ',' });
 
             if (DateTime.Today.Day >= 8)
@@ -388,7 +391,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                     for (Int32 bankCounter = 0; bankCounter < bankAccountData.Length / 3; bankCounter++)
                     {
                         string filename = bankAccountData[bankCounter * 3 + 1] + "_" + LastMonth.ToString("yyMM") + counter.ToString("00") + ".xml";
-    
+
                         if (File.Exists(MyPath + filename))
                         {
                             System.IO.File.Move(MyPath + filename, MyPath2 + filename);
