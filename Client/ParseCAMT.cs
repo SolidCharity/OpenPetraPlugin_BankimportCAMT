@@ -98,7 +98,9 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                     stmt.accountCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Id/camt:IBAN", nsmgr).InnerText;
                     stmt.bankCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Svcr/camt:FinInstnId/camt:BIC", nsmgr).InnerText;
                     stmt.currency = nodeStatement.SelectSingleNode("camt:Acct/camt:Ccy", nsmgr).InnerText;
-                    string ownName = nodeStatement.SelectSingleNode("camt:Acct/camt:Ownr/camt:Nm", nsmgr).InnerText;
+                    XmlNode nm = nodeStatement.SelectSingleNode("camt:Acct/camt:Ownr/camt:Nm", nsmgr);
+                    string ownName = nm!=null?nm.InnerText:
+                        TAppSettingsManager.GetValue("AccountNameFor" + stmt.bankCode + "/" + stmt.accountCode, String.Empty, false);
                     XmlNodeList nodeBalances = nodeStatement.SelectNodes("camt:Bal", nsmgr);
 
                     foreach (XmlNode nodeBalance in nodeBalances)
