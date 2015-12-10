@@ -180,7 +180,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                             {
                                 // we are the debitor
                             }
-                            else
+                            else if (ownName != String.Empty)
                             {
                                 // sometimes donors write the project or recipient in the field where the organisation is supposed to be
                                 TLogging.Log("CrdtName is not like expected: " + tr.description + " --- " + CrdtName.InnerText);
