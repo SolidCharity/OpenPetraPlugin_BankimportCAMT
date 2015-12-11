@@ -155,7 +155,8 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                             tr.amount *= -1.0m;
                         }
 
-                        tr.description = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:RmtInf/camt:Ustrd", nsmgr).InnerText;
+                        XmlNode desc = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:RmtInf/camt:Ustrd", nsmgr);
+                        tr.description = desc!=null?desc.InnerText:String.Empty;
                         XmlNode partnerName = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:RltdPties/camt:Dbtr/camt:Nm", nsmgr);
 
                         if (partnerName != null)
