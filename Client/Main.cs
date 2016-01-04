@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2015 by OM International
+// Copyright 2004-2016 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -357,6 +357,18 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                 string IBAN = RawFileName.Substring("2015-11-02_C53_".Length, "DE12500105170648489890".Length);
                 string[] DateString = RawFileName.Substring(0, "2015-11-02".Length).Split(new char[] { '-' });
                 DateTime stmtDate = new DateTime(Convert.ToInt32(DateString[0]), Convert.ToInt32(DateString[1]), Convert.ToInt32(DateString[2]));
+
+                // it seems we cannot rely on the filename for the date. therefore we need to parse the file
+                TCAMTParser parser = new TCAMTParser();
+
+                parser.ProcessFile(RawFile);
+
+                foreach (TStatement stmt in parser.statements)
+                {
+                    stmtDate = stmt.date;
+                    // currently assuming that there is only one statement per file
+                    break;
+                }
 
                 for (Int32 bankCounter = 0; bankCounter < bankAccountData.Length / 3; bankCounter++)
                 {
