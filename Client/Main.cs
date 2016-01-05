@@ -400,7 +400,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
                         if (severalYears)
                         {
-                            prevYearFilename = OutputPath + Path.DirectorySeparatorChar +
+                            string prevYearFilename = OutputPath + Path.DirectorySeparatorChar +
                                              bankAccountData[bankCounter * 3 + 2] + Path.DirectorySeparatorChar +
                                              bankAccountData[bankCounter * 3 + 1] + "_" +
                                              new DateTime(stmtDate.Year - 1, 12, 31).ToString("yyMMdd") + ".xml";
