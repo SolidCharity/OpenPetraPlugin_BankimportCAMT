@@ -357,26 +357,17 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                 string IBAN = RawFileName.Substring("2015-11-02_C53_".Length, "DE12500105170648489890".Length);
                 string[] DateString = RawFileName.Substring(0, "2015-11-02".Length).Split(new char[] { '-' });
                 DateTime stmtDate = new DateTime(Convert.ToInt32(DateString[0]), Convert.ToInt32(DateString[1]), Convert.ToInt32(DateString[2]));
+                bool severalYears = false;
 
                 // it seems we cannot rely on the filename for the date. therefore we need to parse the file
                 TCAMTParser parser = new TCAMTParser();
 
                 parser.ProcessFile(RawFile);
-                bool severalYears = false;
 
                 foreach (TStatement stmt in parser.statements)
                 {
                     stmtDate = stmt.date;
-
-                    foreach (TTransaction tr in stmt.transactions)
-                    {
-                        if (tr.valueDate.Year != stmt.date.Year)
-                        {
-                            // special case: one statement with transactions in two different years
-                            severalYears = true;
-                            break;
-                        }
-                    }
+                    severalYears = stmt.severalYears;
 
                     // currently assuming that there is only one statement per file
                     break;
@@ -398,6 +389,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
                         File.Move(RawFile, newfilename);
 
+                        // special case: one statement with transactions in two different years
                         if (severalYears)
                         {
                             string prevYearFilename = OutputPath + Path.DirectorySeparatorChar +

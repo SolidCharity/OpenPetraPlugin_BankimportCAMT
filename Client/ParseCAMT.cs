@@ -98,6 +98,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                     stmt.accountCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Id/camt:IBAN", nsmgr).InnerText;
                     stmt.bankCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Svcr/camt:FinInstnId/camt:BIC", nsmgr).InnerText;
                     stmt.currency = nodeStatement.SelectSingleNode("camt:Acct/camt:Ccy", nsmgr).InnerText;
+                    stmt.severalYears = false;
                     XmlNode nm = nodeStatement.SelectSingleNode("camt:Acct/camt:Ownr/camt:Nm", nsmgr);
                     string ownName = nm!=null?nm.InnerText:
                         TAppSettingsManager.GetValue("AccountNameFor" + stmt.bankCode + "/" + stmt.accountCode, String.Empty, false);
@@ -157,6 +158,7 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         if (tr.valueDate.Year != stmt.date.Year)
                         {
                             // ignore transactions that are in a different year than the statement
+                            stmt.severalYears = true;
                             continue;
                         }
 
@@ -288,6 +290,9 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
         /// todoComment
         public DateTime date;
+
+        /// across several years
+        public bool severalYears;
 
         /// todoComment
         public List <TTransaction>transactions = new List <TTransaction>();
