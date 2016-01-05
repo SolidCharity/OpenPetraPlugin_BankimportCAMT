@@ -362,10 +362,22 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                 TCAMTParser parser = new TCAMTParser();
 
                 parser.ProcessFile(RawFile);
+                bool severalYears = false;
 
                 foreach (TStatement stmt in parser.statements)
                 {
                     stmtDate = stmt.date;
+
+                    foreach (TTransaction tr in stmt.transactions)
+                    {
+                        if (tr.valueDate.Year != stmt.date.Year)
+                        {
+                            // special case: one statement with transactions in two different years
+                            severalYears = true;
+                            break;
+                        }
+                    }
+
                     // currently assuming that there is only one statement per file
                     break;
                 }
@@ -385,6 +397,21 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         }
 
                         File.Move(RawFile, newfilename);
+
+                        if (severalYears)
+                        {
+                            prevYearFilename = OutputPath + Path.DirectorySeparatorChar +
+                                             bankAccountData[bankCounter * 3 + 2] + Path.DirectorySeparatorChar +
+                                             bankAccountData[bankCounter * 3 + 1] + "_" +
+                                             new DateTime(stmtDate.Year - 1, 12, 31).ToString("yyMMdd") + ".xml";
+
+                            if (File.Exists(prevYearFilename))
+                            {
+                                File.Delete(prevYearFilename);
+                            }
+
+                            File.Copy(newfilename, prevYearFilename);
+                        }
                     }
                 }
             }

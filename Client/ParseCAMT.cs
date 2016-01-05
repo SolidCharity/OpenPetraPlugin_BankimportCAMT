@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2015 by OM International
+// Copyright 2004-2016 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -135,6 +135,17 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         // FWAV: ForwardAvailable
                     }
 
+                    string filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
+
+                    // if the file has already been split and moved, use the statement date from the file name (if it is on the last of december)
+                    if (!filenameWithoutExtension.Contains("_C53_") 
+                        && filenameWithoutExtension.EndsWith("1231")
+                        && stmt.date.Month != 12
+                        && stmt.date.Day != 31)
+                    {
+                        stmt.date = new DateTime(stmt.date.Year - 1, 12, 31);
+                    }
+
                     XmlNodeList nodeEntries = nodeStatement.SelectNodes("camt:Ntry", nsmgr);
 
                     foreach (XmlNode nodeEntry in nodeEntries)
@@ -142,6 +153,13 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         TTransaction tr = new TTransaction();
                         tr.inputDate = DateTime.Parse(nodeEntry.SelectSingleNode("camt:BookgDt/camt:Dt", nsmgr).InnerText);
                         tr.valueDate = DateTime.Parse(nodeEntry.SelectSingleNode("camt:ValDt/camt:Dt", nsmgr).InnerText);
+
+                        if (tr.valueDate.Year != stmt.date.Year)
+                        {
+                            // ignore transactions that are in a different year than the statement
+                            continue;
+                        }
+
                         tr.amount = Decimal.Parse(nodeEntry.SelectSingleNode("camt:Amt", nsmgr).InnerText);
 
                         if (nodeEntry.SelectSingleNode("camt:Amt", nsmgr).Attributes["Ccy"].Value != stmt.currency)
