@@ -209,6 +209,19 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                             }
                         }
 
+                        XmlNode EndToEndId = nodeEntry.SelectSingleNode("camt:NtryDtls/camt:TxDtls/camt:Refs/camt:EndToEndId", nsmgr);
+
+                        if ((EndToEndId != null)
+                            && (EndToEndId.InnerText != "NOTPROVIDED")
+                            && !EndToEndId.InnerText.StartsWith("LS-")
+                            && !EndToEndId.InnerText.StartsWith("ZV")
+                            && !EndToEndId.InnerText.StartsWith("IZV-DISPO"))
+                        {
+                            // sometimes donors write the project or recipient in unexpected field
+                            TLogging.Log("EndToEndId: " + tr.description + " --- " + EndToEndId.InnerText);
+                            tr.description += " " + EndToEndId.InnerText;
+                        }
+
                         // eg NSTO+152+00900. look for SEPA Geschäftsvorfallcodes
                         // see the codes: https://www.wgzbank.de/export/sites/wgzbank/de/wgzbank/downloads/produkte_leistungen/firmenkunden/zv_aktuelles/Uebersicht-GVC-und-Buchungstexte-WGZ-BANK_V062015.pdf
                         string[] GVCCode =
