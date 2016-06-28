@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2015 by OM International
+// Copyright 2004-2016 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -71,6 +71,18 @@ namespace Ict.Petra.Plugins.Testing.BankimportCAMT
             TCAMTParser p = new TCAMTParser();
 
             p.ProcessFile("../../csharp/ICT/Petra/Plugins/BankimportCAMT/Testing/test-data/test1.xml");
+
+            Console.WriteLine("Number of statements: " + p.statements.Count.ToString());
+
+            foreach (TStatement stmt in p.statements)
+            {
+                Console.WriteLine("Number of transaction: " + stmt.transactions.Count.ToString());
+
+                foreach (TTransaction tr in stmt.transactions)
+                {
+                    Console.WriteLine(tr.valueDate.ToShortDateString());
+                }
+            }
         }
     }
 }
