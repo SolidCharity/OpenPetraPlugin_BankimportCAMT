@@ -229,6 +229,17 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                                 new char[] { '+' });
                         tr.typecode = GVCCode[1];
 
+                        // for SEPA direct debit batches, there are multiple TxDtls records
+                        XmlNodeList transactionDetails = nodeEntry.SelectNodes("camt:NtryDtls/camt:TxDtls", nsmgr);
+
+                        if (transactionDetails.Count > 1)
+                        {
+                            tr.partnerName = String.Empty;
+                            tr.description = String.Format(
+                                Catalog.GetString("SEPA Sammel-Basislastschrift mit {0} Lastschriften"),
+                                transactionDetails.Count);
+                        }
+
                         stmt.transactions.Add(tr);
 
                         TLogging.LogAtLevel(2, "count : " + stmt.transactions.Count.ToString());
