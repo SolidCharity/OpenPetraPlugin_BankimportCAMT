@@ -413,8 +413,8 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
 
         private bool ArchiveFilesLastMonth(Int32 ALedgerNumber)
         {
-            string MyPath = TAppSettingsManager.GetValue("BankimportPath" + ALedgerNumber.ToString() + Path.DirectorySeparatorChar);
-            string MyPath2 = MyPath + Path.DirectorySeparatorChar + "imported" + Path.DirectorySeparatorChar;
+            string MyPath = TAppSettingsManager.GetValue("BankimportPath" + ALedgerNumber.ToString()) + Path.DirectorySeparatorChar;
+            string MyPath2 = MyPath + "imported" + Path.DirectorySeparatorChar;
 
             string[] bankAccountData = TAppSettingsManager.GetValue("BankAccounts").Split(new char[] { ',' });
 
