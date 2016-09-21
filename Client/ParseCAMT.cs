@@ -98,6 +98,10 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                     stmt.accountCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Id/camt:IBAN", nsmgr).InnerText;
                     stmt.bankCode = nodeStatement.SelectSingleNode("camt:Acct/camt:Svcr/camt:FinInstnId/camt:BIC", nsmgr).InnerText;
                     stmt.currency = nodeStatement.SelectSingleNode("camt:Acct/camt:Ccy", nsmgr).InnerText;
+
+                    Int32 DiffElctrncSeqNb = TAppSettingsManager.GetInt32("DiffElctrncSeqNbFor" + stmt.bankCode + "/" + stmt.accountCode, 0);
+                    stmt.id = (Convert.ToInt32(stmt.id) + DiffElctrncSeqNb).ToString();
+
                     stmt.severalYears = false;
                     XmlNode nm = nodeStatement.SelectSingleNode("camt:Acct/camt:Ownr/camt:Nm", nsmgr);
                     string ownName = nm!=null?nm.InnerText:
