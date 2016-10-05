@@ -227,7 +227,11 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         || (row.TransactionTypeCode == "169") /* SEPA Credit Transfer Donation */
                         )
                     {
-                        row.TransactionTypeCode += MFinanceConstants.BANK_STMT_POTENTIAL_GIFT;
+                        // only incoming money is a potential gift
+                        if (row.TransactionAmount > 0)
+                        {
+                            row.TransactionTypeCode += MFinanceConstants.BANK_STMT_POTENTIAL_GIFT;
+                        }
                     }
 
                     AMainDS.AEpTransaction.Rows.Add(row);
