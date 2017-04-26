@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2016 by OM International
+// Copyright 2004-2017 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -114,6 +114,18 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         if (nodeBalance.SelectSingleNode("camt:Tp/camt:CdOrPrtry/camt:Cd", nsmgr).InnerText == "PRCD")
                         {
                             stmt.startBalance = Decimal.Parse(nodeBalance.SelectSingleNode("camt:Amt", nsmgr).InnerText);
+
+                            string strDiffBalance = TAppSettingsManager.GetValue("DiffBalanceFor" + stmt.bankCode + "/" + stmt.accountCode, "0");
+                            Decimal DiffBalance = 0.0m;
+
+                            if (Decimal.TryParse(strDiffBalance, out DiffBalance))
+                            {
+                                stmt.startBalance += DiffBalance;
+                            }
+                            else
+                            {
+                                TLogging.Log("problem parsing decimal from configuration setting DiffBalanceFor" + stmt.bankCode + "/" + stmt.accountCode);
+                            }
 
                             // CreditDebitIndicator: CRDT or DBIT for credit or debit
                             if (nodeBalance.SelectSingleNode("camt:CdtDbtInd", nsmgr).InnerText == "DBIT")
