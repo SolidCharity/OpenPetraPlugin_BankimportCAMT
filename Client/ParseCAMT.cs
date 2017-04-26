@@ -132,6 +132,8 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                             {
                                 stmt.startBalance *= -1.0m;
                             }
+
+                            stmt.date = DateTime.Parse(nodeBalance.SelectSingleNode("camt:Dt", nsmgr).InnerText);
                         }
                         // CLBD: ClosingBooked
                         else if (nodeBalance.SelectSingleNode("camt:Tp/camt:CdOrPrtry/camt:Cd", nsmgr).InnerText == "CLBD")
