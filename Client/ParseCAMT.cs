@@ -115,18 +115,6 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         {
                             stmt.startBalance = Decimal.Parse(nodeBalance.SelectSingleNode("camt:Amt", nsmgr).InnerText);
 
-                            string strDiffBalance = TAppSettingsManager.GetValue("DiffBalanceFor" + stmt.bankCode + "/" + stmt.accountCode, "0");
-                            Decimal DiffBalance = 0.0m;
-
-                            if (Decimal.TryParse(strDiffBalance, out DiffBalance))
-                            {
-                                stmt.startBalance += DiffBalance;
-                            }
-                            else
-                            {
-                                TLogging.Log("problem parsing decimal from configuration setting DiffBalanceFor" + stmt.bankCode + "/" + stmt.accountCode);
-                            }
-
                             // CreditDebitIndicator: CRDT or DBIT for credit or debit
                             if (nodeBalance.SelectSingleNode("camt:CdtDbtInd", nsmgr).InnerText == "DBIT")
                             {
@@ -152,6 +140,18 @@ namespace Ict.Petra.Plugins.BankimportCAMT.Client
                         // ITBD: InterimBooked
                         // CLAV: ClosingAvailable
                         // FWAV: ForwardAvailable
+                    }
+
+                    string strDiffBalance = TAppSettingsManager.GetValue("DiffBalanceFor" + stmt.bankCode + "/" + stmt.accountCode, "0");
+                    Decimal DiffBalance = 0.0m;
+                    if (Decimal.TryParse(strDiffBalance, out DiffBalance))
+                    {
+                        stmt.startBalance += DiffBalance;
+                        stmt.endBalance += DiffBalance;
+                    }
+                    else
+                    {
+                        TLogging.Log("problem parsing decimal from configuration setting DiffBalanceFor" + stmt.bankCode + "/" + stmt.accountCode);
                     }
 
                     string filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
